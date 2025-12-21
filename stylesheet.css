@@ -1,0 +1,175 @@
+/* Claude Usage Stats - Stylesheet */
+/* Automatically respects GNOME dark/light mode through shell theme variables */
+
+/* === Header Styles === */
+.claude-usage-panel-header-icon {
+    icon-size: 32px;
+    margin-right: 12px;
+    color: #f97316;
+}
+
+.claude-usage-panel-title {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.claude-usage-panel-status-dot {
+    icon-size: 8px;
+    margin-right: 6px;
+}
+
+.claude-usage-panel-status-connected {
+    color: #22c55e;
+}
+
+.claude-usage-panel-status-demo {
+    color: #f97316;
+}
+
+.claude-usage-panel-status-error {
+    color: #ef4444;
+}
+
+.claude-usage-panel-status-text {
+    font-size: 12px;
+    color: #888;
+}
+
+/* === Section Styles === */
+.claude-usage-panel-section {
+    padding: 8px 0;
+    margin: 4px 0;
+    background-color: rgba(128, 128, 128, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 280px;
+}
+
+.claude-usage-panel-section-icon {
+    icon-size: 14px;
+    margin-right: 6px;
+    color: #888;
+}
+
+.claude-usage-panel-section-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #888;
+    letter-spacing: 0.5px;
+    min-width: 150px;
+}
+
+/* === Usage Row Styles === */
+.claude-usage-panel-usage-row {
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.claude-usage-panel-usage-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.claude-usage-panel-percent {
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+/* === Badge Styles === */
+.claude-usage-panel-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.claude-usage-panel-badge-good {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.claude-usage-panel-badge-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.claude-usage-panel-badge-critical {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* === Progress Bar Styles === */
+.claude-usage-panel-progress-container {
+    background-color: rgba(128, 128, 128, 0.3);
+    border-radius: 4px;
+    height: 6px;
+    min-width: 250px;
+    margin: 4px 0;
+}
+
+.claude-usage-panel-progress-bar {
+    border-radius: 4px;
+    height: 6px;
+    min-height: 6px;
+    min-width: 0px;
+}
+
+.claude-usage-panel-progress-good {
+    background-color: #22c55e;
+}
+
+.claude-usage-panel-progress-warning {
+    background-color: #f59e0b;
+}
+
+.claude-usage-panel-progress-critical {
+    background-color: #ef4444;
+}
+
+/* === Reset Time Styles === */
+.claude-usage-panel-reset-row {
+    margin-top: 4px;
+}
+
+.claude-usage-panel-reset-icon {
+    icon-size: 12px;
+    margin-right: 4px;
+    color: #888;
+}
+
+.claude-usage-panel-reset-label {
+    font-size: 12px;
+    color: #888;
+}
+
+/* === Footer Styles === */
+.claude-usage-panel-footer {
+    padding-top: 8px;
+}
+
+.claude-usage-panel-footer-button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-right: 8px;
+    background-color: rgba(128, 128, 128, 0.15);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.claude-usage-panel-footer-button:hover {
+    background-color: rgba(128, 128, 128, 0.25);
+}
+
+.claude-usage-panel-refresh-button {
+    border: 2px solid rgba(34, 197, 94, 0.5);
+}
+
+.claude-usage-panel-footer-icon {
+    icon-size: 14px;
+    margin-right: 6px;
+}
+
+.claude-usage-panel-footer-label {
+    font-size: 12px;
+}

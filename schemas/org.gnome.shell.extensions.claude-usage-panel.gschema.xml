@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.claude-usage-panel" path="/org/gnome/shell/extensions/claude-usage-panel/">
+
+    <key name="session-key" type="s">
+      <default>''</default>
+      <summary>Claude.ai Session Key</summary>
+      <description>The sessionKey cookie value from claude.ai for authentication</description>
+    </key>
+
+    <key name="demo-mode" type="b">
+      <default>true</default>
+      <summary>Demo Mode</summary>
+      <description>When enabled, shows demo data instead of making real API calls</description>
+    </key>
+
+    <key name="refresh-interval" type="i">
+      <default>5</default>
+      <summary>Refresh Interval</summary>
+      <description>Minutes between automatic data refreshes</description>
+    </key>
+
+  </schema>
+</schemalist>

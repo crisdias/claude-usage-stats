@@ -1,0 +1,9 @@
+{
+  "uuid": "claude-usage-panel@crisdias.com",
+  "name": "Claude Usage Stats",
+  "description": "Shows Claude AI (Claude Pro) usage statistics in the GNOME top bar",
+  "version": 2,
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "settings-schema": "org.gnome.shell.extensions.claude-usage-panel",
+  "url": "https://github.com/crisdias/claude-usage-stats"
+}

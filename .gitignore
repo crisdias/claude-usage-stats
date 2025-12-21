@@ -1,0 +1,35 @@
+# Compiled schemas
+schemas/gschemas.compiled
+
+# Backup files
+*~
+*.bak
+*.swp
+*.swo
+
+# Build artifacts
+*.zip
+*.shell-extension.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Node modules (if using any build tools)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+docs/reference.png
