@@ -39,6 +39,7 @@ class ClaudeStatsIndicator extends PanelMenu.Button {
         this._icon = new St.Icon({
             gicon: gicon,
             style_class: 'system-status-icon',
+            icon_size: 16,
         });
 
         this._label = new St.Label({
@@ -332,10 +333,9 @@ class ClaudeStatsIndicator extends PanelMenu.Button {
         // Use five_hour as primary for panel label
         const fiveHourUsed = Math.round(fiveHour?.utilization ?? 0);
         const sevenDayUsed = Math.round(sevenDay?.utilization ?? 0);
-        const remainingPercent = Math.round(100 - fiveHourUsed);
 
-        // Update panel label (show remaining %)
-        this._label.set_text(`${remainingPercent}%`);
+        // Update panel label (show used %)
+        this._label.set_text(`${fiveHourUsed}%`);
 
         // Update 5-Hour section
         this._fiveHourPercent.set_text(`${fiveHourUsed}%`);
