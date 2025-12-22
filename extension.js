@@ -28,6 +28,7 @@ class ClaudeStatsIndicator extends PanelMenu.Button {
         this._settings = extension.getSettings();
         this._httpSession = new Soup.Session();
         this._refreshTimeout = null;
+        this._refreshLabelTimeout = null;
         this._orgId = null;
 
         // Panel button layout
@@ -351,7 +352,8 @@ class ClaudeStatsIndicator extends PanelMenu.Button {
 
         // Update last refresh time
         this._lastRefreshTime = new Date();
-        this._refreshLabel.set_text(_('just now'));
+        this._updateRefreshLabel();
+        this._startRefreshLabelUpdater();
     }
 
     _updateBadge(badge, usedPercent) {
@@ -434,7 +436,46 @@ class ClaudeStatsIndicator extends PanelMenu.Button {
 
         // Update refresh timestamp
         this._lastRefreshTime = new Date();
-        this._refreshLabel.set_text(_('just now'));
+        this._updateRefreshLabel();
+        this._startRefreshLabelUpdater();
+    }
+
+    _updateRefreshLabel() {
+        if (!this._lastRefreshTime) {
+            this._refreshLabel.set_text(_('never'));
+            return;
+        }
+
+        const now = new Date();
+        const diffMs = now - this._lastRefreshTime;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+
+        let text;
+        if (diffSeconds < 60) {
+            text = _('just now');
+        } else if (diffMinutes < 60) {
+            text = diffMinutes === 1 ? _('1 min ago') : _(`${diffMinutes} min ago`);
+        } else {
+            text = diffHours === 1 ? _('1 hour ago') : _(`${diffHours} hours ago`);
+        }
+
+        this._refreshLabel.set_text(text);
+    }
+
+    _startRefreshLabelUpdater() {
+        // Clear existing timeout if any
+        if (this._refreshLabelTimeout) {
+            GLib.source_remove(this._refreshLabelTimeout);
+            this._refreshLabelTimeout = null;
+        }
+
+        // Update label every 10 seconds
+        this._refreshLabelTimeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 10, () => {
+            this._updateRefreshLabel();
+            return GLib.SOURCE_CONTINUE; // Keep running
+        });
     }
 
     _showError(message) {
@@ -463,6 +504,11 @@ class ClaudeStatsIndicator extends PanelMenu.Button {
         if (this._refreshTimeout) {
             GLib.source_remove(this._refreshTimeout);
             this._refreshTimeout = null;
+        }
+
+        if (this._refreshLabelTimeout) {
+            GLib.source_remove(this._refreshLabelTimeout);
+            this._refreshLabelTimeout = null;
         }
 
         if (this._settingsChangedId) {
