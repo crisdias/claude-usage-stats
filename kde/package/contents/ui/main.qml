@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasma5support as Plasma5Support
 
 PlasmoidItem {
     id: root
@@ -17,6 +18,90 @@ PlasmoidItem {
     property bool isLoading: false
     property string errorMessage: ""
     property var lastRefreshTime: null
+
+    // Debug log
+    property string debugLog: ""
+    function log(msg) {
+        console.log("[Claude Stats] " + msg)
+        debugLog = debugLog + "\n" + msg
+        if (debugLog.length > 2000) debugLog = debugLog.substring(debugLog.length - 2000)
+    }
+
+    // DataSource for running curl commands
+    Plasma5Support.DataSource {
+        id: executable
+        engine: "executable"
+        connectedSources: []
+
+        onNewData: function(source, data) {
+            var stdout = data["stdout"].trim()
+            var stderr = data["stderr"].trim()
+            var exitCode = data["exit code"]
+
+            log("Curl exit code: " + exitCode)
+
+            if (source.indexOf("api/organizations\"") !== -1 && source.indexOf("/usage") === -1) {
+                // This is the org ID request
+                handleOrgIdResponse(stdout, exitCode)
+            } else if (source.indexOf("/usage") !== -1) {
+                // This is the usage request
+                handleUsageResponse(stdout, exitCode)
+            }
+
+            disconnectSource(source)
+        }
+    }
+
+    function handleOrgIdResponse(response, exitCode) {
+        log("Org response: " + response.substring(0, 200))
+        if (exitCode !== 0 || !response) {
+            isLoading = false
+            showError("Curl failed")
+            return
+        }
+
+        try {
+            var data = JSON.parse(response)
+            if (data && data.length > 0 && data[0].uuid) {
+                orgId = data[0].uuid
+                log("Got org ID: " + orgId)
+                fetchUsage()
+            } else if (data.error) {
+                isLoading = false
+                showError(data.error.message || "API error")
+            } else {
+                isLoading = false
+                showError("No organization found")
+            }
+        } catch (e) {
+            isLoading = false
+            showError("Failed to parse response")
+        }
+    }
+
+    function handleUsageResponse(response, exitCode) {
+        isLoading = false
+        log("Usage response: " + response.substring(0, 300))
+
+        if (exitCode !== 0 || !response) {
+            showError("Curl failed")
+            return
+        }
+
+        try {
+            var data = JSON.parse(response)
+            if (data.error) {
+                showError(data.error.message || "API error")
+            } else {
+                parseUsageData(data)
+                errorMessage = ""
+                lastRefreshTime = new Date()
+                updateRefreshLabel()
+            }
+        } catch (e) {
+            showError("Failed to parse data")
+        }
+    }
 
     // Usage data
     property int fiveHourUsage: 0
@@ -34,8 +119,8 @@ PlasmoidItem {
     property string statusText: demoMode ? "Demo Mode" : (errorMessage ? errorMessage : "Connected")
     property string statusType: demoMode ? "demo" : (errorMessage ? "error" : "connected")
 
-    // Preferred representations
-    preferredRepresentation: compactRepresentation
+    // Preferred representations - use full on desktop, compact in panel
+    preferredRepresentation: Plasmoid.formFactor === PlasmaCore.Types.Planar ? fullRepresentation : compactRepresentation
     compactRepresentation: CompactRepresentation {}
     fullRepresentation: FullRepresentation {}
 
@@ -135,36 +220,20 @@ PlasmoidItem {
     }
 
     // Fetch organization ID
-    function fetchOrgId(callback) {
-        var xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText)
-                        if (data && data.length > 0 && data[0].uuid) {
-                            orgId = data[0].uuid
-                            callback(null, orgId)
-                        } else {
-                            callback("No organization found", null)
-                        }
-                    } catch (e) {
-                        callback("Failed to parse response", null)
-                    }
-                } else {
-                    callback("HTTP " + xhr.status, null)
-                }
-            }
-        }
-        xhr.open("GET", "https://claude.ai/api/organizations")
-        xhr.setRequestHeader("Cookie", "sessionKey=" + sessionKey)
-        xhr.setRequestHeader("Accept", "*/*")
-        xhr.setRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0")
-        xhr.setRequestHeader("Referer", "https://claude.ai/")
-        xhr.setRequestHeader("anthropic-client-platform", "web_claude_ai")
-        xhr.setRequestHeader("anthropic-client-version", "1.0.0")
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.send()
+    function fetchOrgId() {
+        log("Fetching org ID...")
+        log("Session key length: " + sessionKey.length)
+
+        var cmd = 'curl -s "https://claude.ai/api/organizations" ' +
+            '-H "Cookie: sessionKey=' + sessionKey + '" ' +
+            '-H "Accept: */*" ' +
+            '-H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0" ' +
+            '-H "Referer: https://claude.ai/" ' +
+            '-H "anthropic-client-platform: web_claude_ai" ' +
+            '-H "anthropic-client-version: 1.0.0" ' +
+            '-H "Content-Type: application/json"'
+
+        executable.connectSource(cmd)
     }
 
     // Fetch usage data
@@ -174,34 +243,18 @@ PlasmoidItem {
             return
         }
 
-        var xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                isLoading = false
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText)
-                        parseUsageData(data)
-                        errorMessage = ""
-                        lastRefreshTime = new Date()
-                        updateRefreshLabel()
-                    } catch (e) {
-                        showError("Failed to parse data")
-                    }
-                } else {
-                    showError("HTTP " + xhr.status)
-                }
-            }
-        }
-        xhr.open("GET", "https://claude.ai/api/organizations/" + orgId + "/usage")
-        xhr.setRequestHeader("Cookie", "sessionKey=" + sessionKey)
-        xhr.setRequestHeader("Accept", "*/*")
-        xhr.setRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0")
-        xhr.setRequestHeader("Referer", "https://claude.ai/settings/usage")
-        xhr.setRequestHeader("anthropic-client-platform", "web_claude_ai")
-        xhr.setRequestHeader("anthropic-client-version", "1.0.0")
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.send()
+        log("Fetching usage for org: " + orgId)
+
+        var cmd = 'curl -s "https://claude.ai/api/organizations/' + orgId + '/usage" ' +
+            '-H "Cookie: sessionKey=' + sessionKey + '" ' +
+            '-H "Accept: */*" ' +
+            '-H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0" ' +
+            '-H "Referer: https://claude.ai/settings/usage" ' +
+            '-H "anthropic-client-platform: web_claude_ai" ' +
+            '-H "anthropic-client-version: 1.0.0" ' +
+            '-H "Content-Type: application/json"'
+
+        executable.connectSource(cmd)
     }
 
     // Parse usage data from API response
@@ -252,20 +305,18 @@ PlasmoidItem {
         if (orgId) {
             fetchUsage()
         } else {
-            fetchOrgId(function(err, id) {
-                if (err) {
-                    isLoading = false
-                    showError(err)
-                } else {
-                    fetchUsage()
-                }
-            })
+            fetchOrgId()
         }
     }
 
     // Open dashboard in browser
     function openDashboard() {
         Qt.openUrlExternally("https://claude.ai/settings/usage")
+    }
+
+    // Open widget settings
+    function openSettings() {
+        Plasmoid.internalAction("configure").trigger()
     }
 
     // Initial load

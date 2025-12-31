@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls as QQC2
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.kirigami as Kirigami
@@ -66,6 +65,7 @@ Item {
 
         Kirigami.Separator {
             Layout.fillWidth: true
+            Layout.bottomMargin: Kirigami.Units.smallSpacing
         }
 
         // Content area
@@ -89,8 +89,6 @@ Item {
                 usage: root.sevenDayUsage
                 resetTime: root.sevenDayResetTime
             }
-
-            Item { Layout.fillHeight: true }
         }
 
         Kirigami.Separator {
@@ -127,12 +125,13 @@ Item {
 
             PlasmaComponents.Button {
                 icon.name: "configure"
-                onClicked: Plasmoid.internalAction("configure").trigger()
+                onClicked: root.openSettings()
                 PlasmaComponents.ToolTip {
                     text: "Settings"
                 }
             }
         }
+
     }
 
     // Usage Section Component
