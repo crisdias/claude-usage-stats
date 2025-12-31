@@ -1,6 +1,9 @@
 #!/bin/bash
 # Claude Usage Stats - Install Script
 
+# Change to script directory
+cd "$(dirname "$0")"
+
 EXTENSION_UUID="claude-usage-panel@crisdias.com"
 INSTALL_DIR="$HOME/.local/share/gnome-shell/extensions/$EXTENSION_UUID"
 
@@ -16,7 +19,7 @@ cp extension.js "$INSTALL_DIR/"
 cp prefs.js "$INSTALL_DIR/"
 cp stylesheet.css "$INSTALL_DIR/"
 cp schemas/*.xml "$INSTALL_DIR/schemas/"
-cp icons/*.png "$INSTALL_DIR/icons/" 2>/dev/null || true
+cp ../icons/*.png "$INSTALL_DIR/icons/" 2>/dev/null || true
 
 # Compile schemas in the install location
 glib-compile-schemas "$INSTALL_DIR/schemas/"
