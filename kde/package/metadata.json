@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "crisdias@gmail.com",
+                "Name": "Cris Dias"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Display Claude AI usage statistics in the panel or desktop",
+        "Icon": "claude-logo",
+        "Id": "com.github.crisdias.claude-usage-stats",
+        "Name": "Claude Usage Stats",
+        "Version": "1.0.0",
+        "License": "MIT"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
